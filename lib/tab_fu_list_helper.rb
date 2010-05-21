@@ -8,12 +8,17 @@ module TabFu
         @list_id = list_id.to_s
       end
 
-      def method_missing(tab, name, link = '#', *options)
-        prepend = options.delete(:prepend)
-        append = options.delete(:append)
-        options.push(:class => 'current') if tab.to_s == current_tab.to_s
+      def method_missing(tab, name, link = '#', tab_class = '', a_class = '', *options)
+        opts = options.extract_options!
+        prepend = opts.delete(:prepend)
+        append = opts.delete(:append)
+        li_class = tab_class.blank? ? '' : " class=\"#{tab_class}\""
+        link_classes = []
+        link_classes << a_class unless a_class.blank?
+        link_classes << 'current' if tab.to_s == current_tab.to_s
+        options.push(:class => link_classes.join(' ')) unless link_classes.empty?
         text = @always_link || active_class.blank? ? @context.link_to(name, link, *options) : name
-        "<li>#{prepend}#{text}#{append}</li>"
+        "<li#{li_class}>#{prepend}#{text}#{append}</li>"
       end
 
       private
